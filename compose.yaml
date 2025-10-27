@@ -6,11 +6,11 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.4/app'
+        container_name: laravel
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -22,10 +22,14 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql
-            - redis
-            - minio
-            - mailpit
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            minio:
+                condition: service_started
+            mailpit:
+                condition: service_started
     laravel.queue:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
@@ -33,6 +37,7 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.4/app'
+        container_name: queue
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
@@ -55,9 +60,64 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.4/app'
+        container_name: scheduler
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         command: php artisan schedule:work
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+    laravel.migrate:
+        build:
+            context: './vendor/laravel/sail/runtimes/8.4'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.4/app'
+        container_name: migrate
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        command: >
+            sh -c "
+            if [ ! -f .env ]; then
+                cp .env.example .env;
+                php artisan key:generate
+            fi && php artisan migrate
+            "
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+    npm:
+        build:
+            context: './vendor/laravel/sail/runtimes/8.4'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.4/app'
+        container_name: npm
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        command: npm run dev
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
