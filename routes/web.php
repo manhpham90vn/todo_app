@@ -12,8 +12,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('todos', TodoController::class);
 
-    Route::get('todos-trash', [TodoController::class,'trash'])->name('todos.trash');
-    Route::put('todos/{id}/restore', [TodoController::class,'restore'])->name('todos.restore');
-    Route::delete('todos/{id}/force', [TodoController::class,'forceDelete'])->name('todos.forceDelete');
-    Route::patch('todos/{todo}/toggle-complete', [TodoController::class,'toggleComplete'])->name('todos.toggle');
+    Route::get('todos-trash', [TodoController::class, 'trash'])->name('todos.trash');
+    Route::put('todos/{id}/restore', [TodoController::class, 'restore'])->name('todos.restore');
+    Route::delete('todos/{id}/force', [TodoController::class, 'forceDelete'])->name('todos.forceDelete');
+    Route::patch('todos/{todo}/toggle-complete', [TodoController::class, 'toggleComplete'])->name('todos.toggle');
 });

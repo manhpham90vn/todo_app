@@ -32,7 +32,7 @@ class TodoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'is_complete' => $this->boolean('is_complete')
+            'is_complete' => $this->boolean('is_complete'),
         ]);
     }
 }

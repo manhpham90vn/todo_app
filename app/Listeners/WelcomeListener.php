@@ -4,9 +4,10 @@ namespace App\Listeners;
 
 use App\Mail\WelcomeEmail;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
-class WelcomeListener
+class WelcomeListener implements ShouldQueue
 {
     /**
      * Create the event listener.

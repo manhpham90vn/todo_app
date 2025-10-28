@@ -34,7 +34,8 @@ class TodoController extends Controller
 
     public function store(TodoRequest $request)
     {
-        Todo::create($request->validated());
+        Todo::create($request->validated() + ['user_id' => auth()->id()]);
+
         return redirect()->route('todos.index')->with('success', 'Đã tạo việc cần làm.');
     }
 
@@ -51,43 +52,44 @@ class TodoController extends Controller
     public function update(TodoRequest $request, Todo $todo)
     {
         $todo->update($request->validated());
+
         return redirect()->route('todos.index')->with('success', 'Đã cập nhật.');
     }
 
-    // XÓA MỀM
     public function destroy(Todo $todo)
     {
         $todo->delete();
+
         return redirect()->route('todos.index')->with('success', 'Đã đưa vào thùng rác.');
     }
 
-    // TRASH LIST
     public function trash()
     {
         $todos = Todo::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
+
         return view('todos.trash', compact('todos'));
     }
 
-    // KHÔI PHỤC
     public function restore($id)
     {
         $todo = Todo::onlyTrashed()->findOrFail($id);
         $todo->restore();
+
         return redirect()->route('todos.trash')->with('success', 'Đã khôi phục.');
     }
 
-    // XÓA VĨNH VIỄN
     public function forceDelete($id)
     {
         $todo = Todo::onlyTrashed()->findOrFail($id);
         $todo->forceDelete();
+
         return redirect()->route('todos.trash')->with('success', 'Đã xóa vĩnh viễn.');
     }
 
-    // ĐÁNH DẤU HOÀN THÀNH / BỎ HOÀN THÀNH
     public function toggleComplete(Todo $todo)
     {
-        $todo->update(['is_complete' => !$todo->is_complete]);
+        $todo->update(['is_complete' => ! $todo->is_complete]);
+
         return back()->with('success', 'Đã cập nhật trạng thái.');
     }
 }
