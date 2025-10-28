@@ -10,13 +10,15 @@ class TodoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Todo::query()->orderByRaw("FIELD(priority,'high','medium','low')")->orderByDesc('created_at');
+        $query = Todo::query()
+            ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END")
+            ->orderByDesc('created_at');
 
         // Lọc theo trạng thái/độ ưu tiên (optional)
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
-        if ($request->filled('status')) {
+        if ($request->filled('status') && in_array($request->status, ['done', 'todo'], true)) {
             $request->status === 'done'
                 ? $query->where('is_complete', true)
                 : $query->where('is_complete', false);
@@ -89,6 +91,12 @@ class TodoController extends Controller
     public function toggleComplete(Todo $todo)
     {
         $todo->update(['is_complete' => ! $todo->is_complete]);
+
+        if ($todo->is_complete === true) {
+            $todo->update(['completed_at' => now()]);
+        } else {
+            $todo->update(['completed_at' => null]);
+        };
 
         return back()->with('success', 'Đã cập nhật trạng thái.');
     }

@@ -26,13 +26,27 @@ class TodoRequest extends FormRequest
             'description' => 'nullable|string',
             'is_complete' => 'boolean',
             'priority' => 'required|in:low,medium,high',
+            'completed_at' => 'nullable|date',
         ];
     }
 
     protected function prepareForValidation()
     {
+
+        $isComplete = $this->boolean('is_complete');
+
         $this->merge([
-            'is_complete' => $this->boolean('is_complete'),
+            'is_complete' => $isComplete,
         ]);
+
+        if ($isComplete) {
+            $this->merge([
+                'completed_at' => now()
+            ]);
+        } else {
+            $this->merge([
+                'completed_at' => null
+            ]);
+        }
     }
 }

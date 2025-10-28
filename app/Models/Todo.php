@@ -11,11 +11,12 @@ class Todo extends Model
     use SoftDeletes;
 
     protected $fillable = ['title', 'description', 'is_complete', 'priority',
-        'user_id',
+        'user_id', 'completed_at'
     ];
 
     protected $casts = [
         'is_complete' => 'boolean',
+        'completed_at' => 'datetime',
     ];
 
     public function user()

@@ -40,6 +40,7 @@
                     <th>Tiêu đề</th>
                     <th>Ưu tiên</th>
                     <th>Ngày tạo</th>
+                    <th>Ngày hoàn thành</th>
                     <th class="text-end">Hành động</th>
                 </tr>
                 </thead>
@@ -67,6 +68,13 @@
                             <span class="badge bg-{{ $map[$todo->priority] }}">{{ ucfirst($todo->priority) }}</span>
                         </td>
                         <td>{{ $todo->created_at->format('d/m/Y H:i') }}</td>
+                        <td>
+                            @if($todo->completed_at)
+                                {{ $todo->completed_at->format('d/m/Y H:i') }}
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
                         <td class="text-end">
                             <a href="{{ route('todos.edit',$todo) }}" class="btn btn-sm btn-outline-primary">Sửa</a>
                             <form action="{{ route('todos.destroy',$todo) }}" method="post" class="d-inline"
@@ -77,7 +85,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="text-center text-muted">Chưa có công việc.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted">Chưa có công việc.</td></tr>
                 @endforelse
                 </tbody>
             </table>
