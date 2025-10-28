@@ -1,5 +1,5 @@
 services:
-    laravel.test:
+    laravel:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
             dockerfile: Dockerfile
@@ -22,14 +22,8 @@ services:
         networks:
             - sail
         depends_on:
-            mysql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            minio:
-                condition: service_started
-            mailpit:
-                condition: service_started
+            laravel.migrate:
+                condition: service_completed_successfully
     laravel.queue:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
@@ -52,7 +46,8 @@ services:
         networks:
             - sail
         depends_on:
-            - laravel.test
+            laravel.migrate:
+                condition: service_completed_successfully
     laravel.scheduler:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
@@ -75,7 +70,8 @@ services:
         networks:
             - sail
         depends_on:
-            - laravel.test
+            laravel.migrate:
+                condition: service_completed_successfully
     laravel.migrate:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
@@ -104,7 +100,14 @@ services:
         networks:
             - sail
         depends_on:
-            - laravel.test
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            minio:
+                condition: service_started
+            mailpit:
+                condition: service_started
     npm:
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
@@ -129,7 +132,8 @@ services:
         networks:
             - sail
         depends_on:
-            - laravel.test
+            laravel.migrate:
+                condition: service_completed_successfully
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -144,7 +148,6 @@ services:
             MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS}'
         volumes:
             - 'sail-mysql:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
         healthcheck:
