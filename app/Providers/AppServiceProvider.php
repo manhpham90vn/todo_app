@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -50,5 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         }
+
+        Paginator::useBootstrap();
     }
 }
