@@ -30,15 +30,19 @@
                         Lấy Google Token
                     </button>
 
-                    <button type="button" class="btn btn-secondary"
-                            onclick="window.location.href='{{ route('google.calendar.sync') }}'">
-                        Đồng bộ lịch Google Calendar
-                    </button>
+                    <form action="{{ route('google.calendar.sync') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary">
+                            Đồng bộ lịch Google Calendar
+                        </button>
+                    </form>
 
-                    <button type="button" class="btn btn-success"
-                            onclick="window.location.href='{{ route('todo.sync') }}'">
-                        Đồng bộ Todos
-                    </button>
+                    <form action="{{ route('todo.sync') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success">
+                            Đồng bộ Todos
+                        </button>
+                    </form>
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"

@@ -64,4 +64,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(GoogleToken::class);
     }
+
+    public function todos(): HasMany
+    {
+        return $this->hasMany(Todo::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(CalendarEvent::class);
+    }
 }

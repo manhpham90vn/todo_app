@@ -12,11 +12,13 @@ class Todo extends Model
 
     protected $fillable = [
         'user_id',
+        'external_id',
         'title',
         'description',
         'priority',
         'completed_at',
         'deleted_at',
+        'created_at',
     ];
 
     protected $casts = [

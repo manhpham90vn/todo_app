@@ -16,4 +16,9 @@ class GoogleToken extends Model
         'id_token',
         'created',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

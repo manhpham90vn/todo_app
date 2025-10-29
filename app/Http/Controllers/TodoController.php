@@ -28,22 +28,37 @@ class TodoController extends Controller
                 TIMESTAMPDIFF(SECOND, created_at, NOW())
         END ASC
         ')
-            ->orderByRaw('CASE WHEN is_complete = 0 THEN 0 ELSE 1 END DESC')
+            ->orderByRaw(' (completed_at IS NULL) DESC ')
             ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END");
 
-        // Lọc theo trạng thái/độ ưu tiên (optional)
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
+
         if ($request->filled('status') && in_array($request->status, ['done', 'todo'], true)) {
             $request->status === 'done'
-                ? $query->where('is_complete', true)
-                : $query->where('is_complete', false);
+                ? $query->whereNotNull('completed_at')
+                : $query->whereNull('completed_at');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
         }
 
         $todos = $query->paginate(10)->withQueryString();
+        $availableDates = Todo::selectRaw('DATE(created_at) as d')
+            ->groupBy('d')
+            ->orderByRaw('
+                CASE
+                    WHEN d = CURDATE() THEN 0
+                    WHEN d > CURDATE() THEN 1
+                    ELSE 2
+                END
+            ')
+            ->orderBy('d', 'ASC')
+            ->pluck('d');
 
-        return view('todos.index', compact('todos'));
+        return view('todos.index', compact('todos', 'availableDates'));
     }
 
     public function create()
@@ -107,9 +122,8 @@ class TodoController extends Controller
 
     public function toggleComplete(Todo $todo)
     {
-        $todo->update(['is_complete' => ! $todo->is_complete]);
 
-        if ($todo->is_complete === true) {
+        if ($todo->completed_at === null) {
             $todo->update(['completed_at' => now()]);
         } else {
             $todo->update(['completed_at' => null]);

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('todos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('external_id')->nullable()->unique()->index();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');

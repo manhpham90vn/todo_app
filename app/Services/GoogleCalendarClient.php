@@ -8,14 +8,10 @@ use Google\Service\Calendar;
 
 class GoogleCalendarClient
 {
-    public static function make(GoogleToken $token): Calendar
+    public static function makeClient(): Client
     {
         $client = new Client;
         $client->setApplicationName(config('app.name'));
-        $client->setScopes([
-            Calendar::CALENDAR_READONLY,
-            'openid', 'email',
-        ]);
         $client->setAuthConfig([
             'client_id' => config('google.google_calendar_client_id'),
             'client_secret' => config('google.google_calendar_secret'),
@@ -23,10 +19,20 @@ class GoogleCalendarClient
             'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',
             'token_uri' => 'https://oauth2.googleapis.com/token',
         ]);
-        $client->setRedirectUri(config('google.google_calendar_redirect_uri'));
+        $client->setScopes([
+            Calendar::CALENDAR_READONLY,
+            'openid', 'email',
+        ]);
         $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
         $client->setIncludeGrantedScopes(true);
+
+        return $client;
+    }
+
+    public static function make(GoogleToken $token): Calendar
+    {
+        $client = GoogleCalendarClient::makeClient();
         $client->setAccessToken($token->toArray());
 
         if ($client->isAccessTokenExpired()) {

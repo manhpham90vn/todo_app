@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CalendarEvent;
+use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class TodoSyncCommand extends Command
 {
@@ -13,7 +14,7 @@ class TodoSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:todo-sync-command';
+    protected $signature = 'app:todo-sync-command {user_id?}';
 
     /**
      * The console command description.
@@ -27,44 +28,41 @@ class TodoSyncCommand extends Command
      */
     public function handle()
     {
-        $users = User::all();
-        foreach ($users as $user) {
-            $this->info("Processing user: {$user->id} - {$user->name}");
-            $tokens = DB::table('google_tokens')
-                ->where('user_id', $user->id)
-                ->latest('created_at')
-                ->first();
-            if (! $tokens) {
-                $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
-                break;
-            }
+        $userId = $this->argument('user_id');
 
+        if ($userId) {
+            $user = User::find($userId);
+            $this->process($user);
+        } else {
+            $users = User::all();
+            foreach ($users as $user) {
+                $this->process($user);
+
+            }
         }
-        $events = DB::table('calendar_events')->get();
 
+    }
+
+    public function process(User $user): void
+    {
+        $this->info("Processing user: {$user->id} - {$user->name}");
+
+        $events = CalendarEvent::where('user_id', $user->id)->get();
         foreach ($events as $event) {
-
-            $this->info("Processing event: {$event->summary}");
-
-            $exists = DB::table('todos')
-                ->where('title', $event->summary)
-                ->where('description', $event->description)
-                ->where('created_at', $event->start_at)
-                ->exists();
-
-            $this->info("Exists: {$exists} event: {$event->summary}");
-
-            if (! $exists) {
-                DB::table('todos')->insert([
-                    'user_id' => 1,
-                    'title' => $event->summary ?? 'No Title',
-                    'description' => $event->description,
-                    'is_complete' => false,
-                    'priority' => 'medium',
-                    'created_at' => $event->start_at,
-                    'updated_at' => now(),
-                ]);
+            $priority = 'medium';
+            if ($event->summary && preg_match('/\b(deploy|release)\b/i', $event->summary)) {
+                $priority = 'high';
             }
+            Todo::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'external_id' => $event->google_event_id],
+                [
+                    'title' => $event->summary,
+                    'description' => $event->description,
+                    'priority' => $priority,
+                    'created_at' => $event->start_at,
+                ]);
         }
     }
 }

@@ -19,4 +19,9 @@ class CalendarEvent extends Model
         'attendees',
         'raw',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
