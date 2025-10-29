@@ -41,11 +41,11 @@ class TodoRequest extends FormRequest
 
         if ($isComplete) {
             $this->merge([
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
         } else {
             $this->merge([
-                'completed_at' => null
+                'completed_at' => null,
             ]);
         }
     }

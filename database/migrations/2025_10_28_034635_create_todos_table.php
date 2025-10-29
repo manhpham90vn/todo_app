@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('todos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->boolean('is_complete')->default(false);
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->timestamp('completed_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
