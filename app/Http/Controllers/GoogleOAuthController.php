@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GoogleToken;
 use App\Services\GoogleCalendarClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -26,11 +27,11 @@ class GoogleOAuthController extends Controller
     public function callback(Request $request)
     {
         try {
-            $code = $request->string('code');
-            $state = $request->string('state');
+            $code = $request->query('code');
+            $state = $request->query('state');
 
-            if ($code->isEmpty()) {
-                abort(400, 'Missing code');
+            if (empty($code) || empty($state)) {
+                abort(400, 'Missing code or state');
             }
 
             $expected = $request->session()->pull('google_oauth_state');
@@ -45,16 +46,16 @@ class GoogleOAuthController extends Controller
                 abort(400, $token['error_description'] ?? 'OAuth error');
             }
 
-            GoogleToken::updateOrCreate(
-                ['user_id' => auth()->id()],
-                $token
+            $token['user_id'] = auth()->user()->id;
+            GoogleToken::create(
+                $token,
             );
 
             return redirect()
                 ->route('todos.index')
                 ->with('success', 'Kết nối Google thành công. Token đã được lưu.');
         } catch (Throwable $e) {
-            report($e);
+            Log::error('Error google callback '.$e);
             abort(400, 'OAuth callback failed');
         }
     }

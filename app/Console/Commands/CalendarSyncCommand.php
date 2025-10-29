@@ -31,29 +31,39 @@ class CalendarSyncCommand extends Command
         $userId = $this->argument('user_id');
 
         if ($userId) {
-            $user = User::find($userId);
-            $token = $user->googleTokens()->latest('created_at')->first();
+            $user = User::with([
+                'googleTokens' => fn ($q) => $q->latest('created_at')->limit(1),
+            ])->find($userId);
+            $this->info("Processing user: {$user->id} - {$user->name}");
+
+            $token = $user->googleTokens->first();
             if (! $token) {
                 $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
 
                 return 0;
             }
 
-            $this->info("Found Google tokens for user: {$user->id} - {$user->name}");
             dispatch(new SyncGoogleCalendarJob($id, $token, $user->id));
         } else {
-            $users = User::all();
-            foreach ($users as $user) {
-                $this->info("Processing user: {$user->id} - {$user->name}");
-                $token = $user->googleTokens()->latest('created_at')->first();
-                if (! $token) {
-                    $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
-                    break;
-                }
+            User::query()
+                ->with([
+                    'googleTokens' => fn ($q) => $q->latest('created_at')->limit(1),
+                ])
+                ->orderBy('id')
+                ->chunkById(200, function ($users) use ($id) {
+                    foreach ($users as $user) {
+                        $this->info("Processing user: {$user->id} - {$user->name}");
 
-                $this->info("Found Google tokens for user: {$user->id} - {$user->name}");
-                dispatch(new SyncGoogleCalendarJob($id, $token, $user->id));
-            }
+                        $token = $user->googleTokens->first();
+                        if (! $token) {
+                            $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
+
+                            continue;
+                        }
+
+                        dispatch(new SyncGoogleCalendarJob($id, $token, $user->id));
+                    }
+                });
         }
 
         return 0;

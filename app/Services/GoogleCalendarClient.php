@@ -14,7 +14,7 @@ class GoogleCalendarClient
         $client->setApplicationName(config('app.name'));
         $client->setAuthConfig([
             'client_id' => config('google.google_calendar_client_id'),
-            'client_secret' => config('google.google_calendar_secret'),
+            'client_secret' => config('google.google_calendar_client_secret'),
             'redirect_uris' => [config('google.google_calendar_redirect_uri')],
             'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',
             'token_uri' => 'https://oauth2.googleapis.com/token',
@@ -49,6 +49,7 @@ class GoogleCalendarClient
 
             $client->setAccessToken($refreshed);
             $new_token = $client->getAccessToken();
+            $new_token['user_id'] = $token->user_id;
 
             GoogleToken::create($new_token);
         }
