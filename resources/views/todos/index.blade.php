@@ -36,25 +36,16 @@
             <table class="table table-hover align-middle">
                 <thead>
                 <tr>
-                    <th style="width:40px;"></th>
                     <th>Tiêu đề</th>
-                    <th>Ưu tiên</th>
-                    <th>Ngày tạo</th>
-                    <th>Ngày hoàn thành</th>
-                    <th class="text-end">Hành động</th>
+                    <th class="text-nowrap" style="width:160px;">Ưu tiên</th>
+                    <th class="text-nowrap" style="width:160px;">Ngày tạo</th>
+                    <th class="text-nowrap" style="width:160px;">Ngày hoàn thành</th>
+                    <th class="text-nowrap" style="width:200px">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
                 @forelse ($todos as $todo)
                     <tr class="{{ $todo->is_complete ? 'table-success' : '' }}">
-                        <td>
-                            <form action="{{ route('todos.toggle', $todo) }}" method="post">
-                                @csrf @method('PATCH')
-                                <button class="btn btn-sm {{ $todo->is_complete ? 'btn-success' : 'btn-outline-secondary' }}" title="Toggle hoàn thành">
-                                    ✓
-                                </button>
-                            </form>
-                        </td>
                         <td>
                             <a href="{{ route('todos.show',$todo) }}" class="text-decoration-none">
                                 {{ $todo->title }}
@@ -72,10 +63,18 @@
                             @if($todo->completed_at)
                                 {{ $todo->completed_at->format('d/m/Y H:i') }}
                             @else
-                                <span class="text-muted">—</span>
+                                <span class="text-muted d-block text-center">—</span>
                             @endif
                         </td>
-                        <td class="text-end">
+                        <td>
+                            <form action="{{ route('todos.toggle', $todo) }}" method="post" class="d-inline">
+                                @csrf @method('PATCH')
+                                @if(!$todo->is_complete)
+                                    <button class="btn btn-sm btn-outline-success">Hoàn thành</button>
+                                @else
+                                    <button class="btn btn-sm btn-outline-secondary">Hủy hoàn thành</button>
+                                @endif
+                            </form>
                             <a href="{{ route('todos.edit',$todo) }}" class="btn btn-sm btn-outline-primary">Sửa</a>
                             <form action="{{ route('todos.destroy',$todo) }}" method="post" class="d-inline"
                                   onsubmit="return confirm('Chắc chắn xóa (đưa vào thùng rác)?')">

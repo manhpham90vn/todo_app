@@ -11,6 +11,8 @@ class TodoController extends Controller
     public function index(Request $request)
     {
         $query = Todo::query()
+            ->orderByRaw("CASE WHEN is_complete = 0 THEN 0 ELSE 1 END ASC")
+            ->orderBy('created_at', 'desc')
             ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END")
             ->orderByDesc('created_at');
 
