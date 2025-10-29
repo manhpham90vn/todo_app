@@ -151,11 +151,7 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - '-p${DB_PASSWORD}'
+            test: ["CMD-SHELL", "mysqladmin ping -h127.0.0.1 -uroot -p\"${DB_PASSWORD}\" || exit 1"]
             retries: 3
             timeout: 5s
     phpmyadmin:
@@ -181,10 +177,7 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
+            test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep PONG"]
             retries: 3
             timeout: 5s
     redisinsight:
@@ -211,11 +204,7 @@ services:
             - sail
         command: 'minio server /data --console-address ":8900"'
         healthcheck:
-            test:
-                - CMD
-                - mc
-                - ready
-                - local
+            test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9000/minio/health/ready >/dev/null || exit 1"]
             retries: 3
             timeout: 5s
     mailpit:
@@ -245,5 +234,8 @@ volumes:
     sail-minio:
         driver: local
     phpmyadmin:
+        driver: local
     redisinsight:
+        driver: local
     portainer_data:
+        driver: local

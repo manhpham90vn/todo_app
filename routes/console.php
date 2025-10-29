@@ -8,21 +8,21 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('app:clean-failed-jobs')
-    ->hourly()
+    ->dailyAt('00:00')
     ->withoutOverlapping()
     ->onOneServer()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/clean_failed_jobs.log'));
 
 Schedule::command('app:calendar-sync-command')
-    ->everyFifteenMinutes()
+    ->dailyAt('00:00')
     ->withoutOverlapping()
     ->onOneServer()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/calendar_sync.log'));
 
 Schedule::command('app:todo-sync-command')
-    ->everyFifteenMinutes()
+    ->dailyAt('01:00')
     ->withoutOverlapping()
     ->onOneServer()
     ->runInBackground()
