@@ -9,7 +9,7 @@
             </div>
         </div>
         <p class="mb-2"><strong>Ưu tiên:</strong> {{ ucfirst($todo->priority) }}</p>
-        <p class="mb-2"><strong>Trạng thái:</strong> {{ $todo->is_complete ? 'Đã hoàn thành' : 'Chưa xong' }}</p>
+        <p class="mb-2"><strong>Trạng thái:</strong> {{ $todo->completed_at ? 'Đã hoàn thành' : 'Chưa xong hoặc đang làm' }}</p>
         @if($todo->description)
             <hr>
             <p>{{ $todo->description }}</p>

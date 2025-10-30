@@ -25,7 +25,7 @@
     <div class="col-md-6 d-flex align-items-end">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="is_complete" value="1"
-                @checked(old('is_complete', $todo->is_complete ?? false))>
+                @checked(old('is_complete', $todo->completed_at ?? false))>
             <label class="form-check-label">Đã hoàn thành</label>
         </div>
     </div>

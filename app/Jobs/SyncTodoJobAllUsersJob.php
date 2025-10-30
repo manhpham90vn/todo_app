@@ -25,7 +25,7 @@ class SyncTodoJobAllUsersJob implements ShouldQueue
     {
         User::select('id', 'name')
             ->with(['events' => function ($q) {
-                $q->select('id', 'user_id', 'google_event_id', 'summary', 'description', 'start_at');
+                $q->select('id', 'user_id', 'google_event_id', 'summary', 'description', 'start_at', 'end_at');
             }])
             ->orderBy('id')
             ->chunkById(200, function ($users) {

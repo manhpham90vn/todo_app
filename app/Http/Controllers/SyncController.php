@@ -21,7 +21,7 @@ class SyncController extends Controller
     public function syncTodo()
     {
         $user = Auth::user();
-        $event = $user->events();
+        $event = $user->events()->get()->all();
 
         dispatch(new SyncTodoJob($user->id, $event));
 

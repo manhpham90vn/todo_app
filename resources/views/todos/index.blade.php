@@ -21,7 +21,7 @@
         <form class="row g-2 mb-3">
             <div class="col-auto">
                 <select name="date" class="form-select" onchange="this.form.submit()">
-                    <option value="">— Ngày —</option>
+                    <option value="">— Giờ bắt đầu —</option>
                     @foreach($availableDates as $d)
                         <option value="{{ $d }}" {{ request('date')==$d ? 'selected' : '' }}>
                             {{ \Carbon\Carbon::parse($d)->format('d/m/Y') }}
@@ -32,16 +32,17 @@
             <div class="col-auto">
                 <select name="priority" class="form-select" onchange="this.form.submit()">
                     <option value="">— Ưu tiên —</option>
-                    <option value="high" {{ request('priority')=='high'?'selected':'' }}>Cao</option>
-                    <option value="medium" {{ request('priority')=='medium'?'selected':'' }}>Trung bình</option>
-                    <option value="low" {{ request('priority')=='low'?'selected':'' }}>Thấp</option>
+                    <option value="high" {{ request('priority')=='high'?'selected':'' }}>High</option>
+                    <option value="medium" {{ request('priority')=='medium'?'selected':'' }}>Medium</option>
+                    <option value="low" {{ request('priority')=='low'?'selected':'' }}>Low</option>
                 </select>
             </div>
             <div class="col-auto">
                 <select name="status" class="form-select" onchange="this.form.submit()">
                     <option value="">— Trạng thái —</option>
-                    <option value="todo" {{ request('status')=='todo'?'selected':'' }}>Chưa xong</option>
-                    <option value="done" {{ request('status')=='done'?'selected':'' }}>Đã xong</option>
+                    <option value="new" {{ request('status')=='new'?'selected':'' }}>New</option>
+                    <option value="doing" {{ request('status')=='doing'?'selected':'' }}>Doing</option>
+                    <option value="completed" {{ request('status')=='completed'?'selected':'' }}>Completed</option>
                 </select>
             </div>
         </form>
@@ -49,17 +50,21 @@
         <div class="table-responsive">
             <table class="table table-bordered table-striped" style="table-layout: fixed; width:100%;">
                 <colgroup>
-                    <col style="width:40%">
+                    <col style="width:30%">
                     <col style="width:10%">
-                    <col style="width:15%">
-                    <col style="width:15%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
                     <col style="width:20%">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>Tiêu đề</th>
                     <th class="text-center">Ưu tiên</th>
-                    <th class="text-center">Giờ tạo</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Giờ bắt đầu</th>
+                    <th class="text-center">Giờ kết thúc</th>
                     <th class="text-center">Giờ hoàn thành</th>
                     <th class="text-center">Hành động</th>
                 </tr>
@@ -79,13 +84,18 @@
                             @php $map=['high'=>'danger','medium'=>'warning','low'=>'secondary']; @endphp
                             <span class="badge bg-{{ $map[$todo->priority] }}">{{ ucfirst($todo->priority) }}</span>
                         </td>
-                        <td class="text-center">{{ $todo->created_at->format('d/m/Y H:i') }}</td>
                         <td class="text-center">
-                            @if($todo->completed_at)
-                                {{ $todo->completed_at->format('d/m/Y H:i') }}
-                            @else
-                                <span class="text-muted d-block text-center">—</span>
-                            @endif
+                            @php $map=['new'=>'info','doing'=>'primary','completed'=>'success']; @endphp
+                            <span class="badge bg-{{ $map[$todo->status] }}">{{ ucfirst($todo->status) }}</span>
+                        </td>
+                        <td class="text-center">
+                            {{ $todo->start_at ? $todo->start_at->format('d/m/Y H:i') : '' }}
+                        </td>
+                        <td class="text-center">
+                            {{ $todo->end_at ? $todo->end_at->format('d/m/Y H:i') : '' }}
+                        </td>
+                        <td class="text-center">
+                            {{ $todo->completed_at ? $todo->completed_at->format('d/m/Y H:i') : '' }}
                         </td>
                         <td class="text-center">
                             <form action="{{ route('todos.toggle', $todo) }}" method="post" class="d-inline">
@@ -106,7 +116,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Chưa có công việc.</td>
+                        <td colspan="8" class="text-center text-muted">Chưa có công việc.</td>
                     </tr>
                 @endforelse
                 </tbody>

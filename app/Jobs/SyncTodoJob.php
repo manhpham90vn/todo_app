@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\CalendarEvent;
 use App\Models\Todo;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -12,6 +13,7 @@ class SyncTodoJob implements ShouldQueue
 
     public int $userId;
 
+    /** @var CalendarEvent[] */
     public array $calendarEvents;
 
     /**
@@ -34,6 +36,8 @@ class SyncTodoJob implements ShouldQueue
                 $priority = 'high';
             }
 
+            \Log::info("Syncing Todo for User ID: {$this->userId}, Event ID: {$event->google_event_id}, Title: {$event->summary}, Priority: {$priority}");
+
             Todo::updateOrCreate(
                 [
                     'user_id' => $this->userId,
@@ -43,7 +47,8 @@ class SyncTodoJob implements ShouldQueue
                     'title' => $event->summary,
                     'description' => $event->description,
                     'priority' => $priority,
-                    'created_at' => $event->start_at,
+                    'start_at' => $event->start_at,
+                    'end_at' => $event->end_at,
                 ]
             );
         }

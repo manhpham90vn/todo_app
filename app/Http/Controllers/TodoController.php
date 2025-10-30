@@ -13,40 +13,38 @@ class TodoController extends Controller
         $query = Todo::query()
             ->orderByRaw('
         CASE
-            WHEN DATE(created_at) = CURDATE() THEN 0
-            WHEN DATE(created_at) > CURDATE() THEN 1
+            WHEN DATE(start_at) = CURDATE() THEN 0
+            WHEN DATE(start_at) > CURDATE() THEN 1
             ELSE 2
         END ASC
         ')
             ->orderByRaw('
         CASE
-            WHEN DATE(created_at) = CURDATE()
-                THEN ABS(TIMESTAMPDIFF(SECOND, created_at, NOW()))
-            WHEN DATE(created_at) > CURDATE()
-                THEN TIMESTAMPDIFF(SECOND, NOW(), created_at)
+            WHEN DATE(start_at) = CURDATE()
+                THEN ABS(TIMESTAMPDIFF(SECOND, start_at, NOW()))
+            WHEN DATE(start_at) > CURDATE()
+                THEN TIMESTAMPDIFF(SECOND, NOW(), start_at)
             ELSE
-                TIMESTAMPDIFF(SECOND, created_at, NOW())
+                TIMESTAMPDIFF(SECOND, start_at, NOW())
         END ASC
         ')
             ->orderByRaw(' (completed_at IS NULL) DESC ')
             ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END");
 
-        if ($request->filled('priority')) {
+        if ($request->filled('priority') && in_array($request->priority, ['low', 'medium', 'high'], true)) {
             $query->where('priority', $request->priority);
         }
 
-        if ($request->filled('status') && in_array($request->status, ['done', 'todo'], true)) {
-            $request->status === 'done'
-                ? $query->whereNotNull('completed_at')
-                : $query->whereNull('completed_at');
+        if ($request->filled('status') && in_array($request->status, ['new', 'doing', 'completed'], true)) {
+            $query->where('status', $request->status);
         }
 
         if ($request->date) {
-            $query->whereDate('created_at', $request->date);
+            $query->whereDate('start_at', $request->date);
         }
 
         $todos = $query->paginate(10)->withQueryString();
-        $availableDates = Todo::selectRaw('DATE(created_at) as d')
+        $availableDates = Todo::selectRaw('DATE(start_at) as d')
             ->groupBy('d')
             ->orderByRaw('
                 CASE
@@ -124,9 +122,9 @@ class TodoController extends Controller
     {
 
         if ($todo->completed_at === null) {
-            $todo->update(['completed_at' => now()]);
+            $todo->update(['completed_at' => now(), 'status' => 'completed']);
         } else {
-            $todo->update(['completed_at' => null]);
+            $todo->update(['completed_at' => null, 'status' => 'new']);
         }
 
         return back()->with('success', 'Đã cập nhật trạng thái.');

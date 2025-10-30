@@ -20,6 +20,11 @@ class CalendarEvent extends Model
         'raw',
     ];
 
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at' => 'datetime'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

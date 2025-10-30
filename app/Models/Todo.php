@@ -16,12 +16,17 @@ class Todo extends Model
         'title',
         'description',
         'priority',
+        'status',
+        'start_at',
+        'end_at',
         'completed_at',
-        'deleted_at',
         'created_at',
+        'deleted_at'
     ];
 
     protected $casts = [
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
 

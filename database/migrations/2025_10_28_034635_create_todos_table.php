@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->enum('status', ['new', 'doing', 'completed'])->default('new');
+            $table->timestamp('start_at')->nullable();
+            $table->timestamp('end_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
