@@ -21,7 +21,7 @@ class Todo extends Model
         'end_at',
         'completed_at',
         'created_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
     protected $casts = [

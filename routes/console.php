@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\UpdateTodoStatus;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -27,3 +28,9 @@ Schedule::command('app:todo-sync-command')
     ->onOneServer()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/app_todo_sync.log'));
+
+Schedule::job(UpdateTodoStatus::class)
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/update_todo_status.log'));
