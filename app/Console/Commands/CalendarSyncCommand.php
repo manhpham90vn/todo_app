@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SyncGoogleCalendarJob;
-use App\Models\User;
+use App\Jobs\SyncGoogleCalendarAllUsersJob;
 use Illuminate\Console\Command;
 
 class CalendarSyncCommand extends Command
@@ -13,7 +12,7 @@ class CalendarSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:calendar-sync-command {user_id?}';
+    protected $signature = 'app:calendar-sync-command';
 
     /**
      * The console command description.
@@ -27,44 +26,7 @@ class CalendarSyncCommand extends Command
      */
     public function handle()
     {
-        $id = 'primary';
-        $userId = $this->argument('user_id');
-
-        if ($userId) {
-            $user = User::with([
-                'googleTokens' => fn ($q) => $q->latest('created_at')->limit(1),
-            ])->find($userId);
-            $this->info("Processing user: {$user->id} - {$user->name}");
-
-            $token = $user->googleTokens->first();
-            if (! $token) {
-                $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
-
-                return 0;
-            }
-
-            dispatch(new SyncGoogleCalendarJob($id, $token, $user->id));
-        } else {
-            User::query()
-                ->with([
-                    'googleTokens' => fn ($q) => $q->latest('created_at')->limit(1),
-                ])
-                ->orderBy('id')
-                ->chunkById(200, function ($users) use ($id) {
-                    foreach ($users as $user) {
-                        $this->info("Processing user: {$user->id} - {$user->name}");
-
-                        $token = $user->googleTokens->first();
-                        if (! $token) {
-                            $this->info("No Google tokens found for user: {$user->id} - {$user->name}");
-
-                            continue;
-                        }
-
-                        dispatch(new SyncGoogleCalendarJob($id, $token, $user->id));
-                    }
-                });
-        }
+        dispatch(new SyncGoogleCalendarAllUsersJob);
 
         return 0;
     }

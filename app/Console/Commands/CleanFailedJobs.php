@@ -30,5 +30,7 @@ class CleanFailedJobs extends Command
             ->where('failed_at', '<=', now()->subDays(7))
             ->delete();
         $this->info("Deleted {$count} failed jobs older than 7 days.");
+
+        return 0;
     }
 }

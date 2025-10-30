@@ -18,24 +18,23 @@ class SyncGoogleCalendarJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public string $calendarId;
-
-    public GoogleToken $token;
+    public string $calendarId = 'primary';
 
     public int $user_id;
 
-    public function __construct(string $calendarId, GoogleToken $token, int $user_id)
+    public GoogleToken $googleToken;
+
+    public function __construct(int $user_id, GoogleToken $googleToken)
     {
-        $this->calendarId = $calendarId;
-        $this->token = $token;
         $this->user_id = $user_id;
+        $this->googleToken = $googleToken;
     }
 
     public function handle(): void
     {
-        $service = GoogleCalendarClient::make($this->token);
+        $service = GoogleCalendarClient::make($this->googleToken);
 
-        Log::info("Starting sync for calendar ID: {$this->calendarId}");
+        Log::info("Starting sync for user: {$this->user_id} - calendar ID: {$this->calendarId}");
 
         $now = Carbon::now();
         $timeMin = $now->copy()->subDays(7)->startOfDay()->toRfc3339String();

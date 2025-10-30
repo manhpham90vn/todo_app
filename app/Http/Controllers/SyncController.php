@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\SyncGoogleCalendarJob;
+use App\Jobs\SyncTodoJob;
 use Illuminate\Support\Facades\Auth;
 
 class SyncController extends Controller
@@ -10,10 +11,9 @@ class SyncController extends Controller
     public function syncGoogle()
     {
         $user = Auth::user();
+        $token = $user->googleTokens()->latest('created_at')->first();
 
-        Artisan::call('app:calendar-sync-command', [
-            'user_id' => $user->id,
-        ]);
+        dispatch(new SyncGoogleCalendarJob($user->id, $token));
 
         return back()->with('success', 'Google Calendar sync successful.');
     }
@@ -21,10 +21,9 @@ class SyncController extends Controller
     public function syncTodo()
     {
         $user = Auth::user();
+        $event = $user->events();
 
-        Artisan::call('app:todo-sync-command', [
-            'user_id' => $user->id,
-        ]);
+        dispatch(new SyncTodoJob($user->id, $event));
 
         return back()->with('success', 'Todo Sync successful.');
 
