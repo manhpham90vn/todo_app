@@ -35,8 +35,6 @@ class SyncGoogleCalendarAllUsersJob implements ShouldQueue
 
                     $token = $user->googleTokens->first();
                     if (! $token) {
-                        Log::info("No Google tokens found for user: {$user->id} - {$user->name}");
-
                         continue;
                     }
 

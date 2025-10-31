@@ -26,11 +26,12 @@ class UpdateTodoStatus implements ShouldQueue
     public function handle(): void
     {
         $now = Carbon::now();
+        $nowInUTC = Carbon::now()->utc();
 
-        Log::info("Updating todos status for {$now->toDateTimeString()}");
+        Log::info("Updating Todo statuses at {$now->toDateTimeString()}");
 
-        Todo::where('start_at', '<=', $now)
-            ->where('end_at', '>=', $now)
+        Todo::where('start_at', '<=', $nowInUTC)
+            ->where('end_at', '>=', $nowInUTC)
             ->whereNotIn('status', ['doing', 'completed'])
             ->update(['status' => 'doing']);
     }

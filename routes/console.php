@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendWebPush;
 use App\Jobs\UpdateTodoStatus;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -12,25 +13,26 @@ Schedule::command('app:clean-failed-jobs')
     ->hourlyAt(0)
     ->withoutOverlapping()
     ->onOneServer()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/clean_failed_jobs.log'));
+    ->runInBackground();
 
 Schedule::command('app:calendar-sync-command')
     ->hourlyAt(15)
     ->withoutOverlapping()
     ->onOneServer()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/calendar_sync.log'));
+    ->runInBackground();
 
 Schedule::command('app:todo-sync-command')
     ->hourlyAt(30)
     ->withoutOverlapping()
     ->onOneServer()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/app_todo_sync.log'));
+    ->runInBackground();
 
 Schedule::job(UpdateTodoStatus::class)
-    ->everyMinute()
+    ->everyFiveMinutes()
     ->withoutOverlapping()
-    ->onOneServer()
-    ->appendOutputTo(storage_path('logs/update_todo_status.log'));
+    ->onOneServer();
+
+Schedule::job(SendWebPush::class)
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();

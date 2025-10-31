@@ -27,7 +27,7 @@ class CleanFailedJobs extends Command
     public function handle()
     {
         $count = DB::table('failed_jobs')
-            ->where('failed_at', '<=', now()->subDays(7))
+            ->where('failed_at', '<=', now()->utc()->subDays(7))
             ->delete();
         $this->info("Deleted {$count} failed jobs older than 7 days.");
 

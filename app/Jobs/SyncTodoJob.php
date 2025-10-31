@@ -6,6 +6,7 @@ use App\Models\CalendarEvent;
 use App\Models\Todo;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class SyncTodoJob implements ShouldQueue
 {
@@ -36,7 +37,7 @@ class SyncTodoJob implements ShouldQueue
                 $priority = 'high';
             }
 
-            \Log::info("Syncing Todo for User ID: {$this->userId}, Event ID: {$event->google_event_id}, Title: {$event->summary}, Priority: {$priority}");
+            Log::info("Syncing Todo for User ID: {$this->userId}, Event ID: {$event->google_event_id}, Title: {$event->summary}, Priority: {$priority}");
 
             Todo::updateOrCreate(
                 [
@@ -44,7 +45,7 @@ class SyncTodoJob implements ShouldQueue
                     'external_id' => $event->google_event_id,
                 ],
                 [
-                    'title' => $event->summary,
+                    'title' => $event->summary ?? 'No Title',
                     'description' => $event->description,
                     'priority' => $priority,
                     'start_at' => $event->start_at,

@@ -30,7 +30,7 @@ class SyncTodoJobAllUsersJob implements ShouldQueue
             ->orderBy('id')
             ->chunkById(200, function ($users) {
                 foreach ($users as $user) {
-                    dispatch(new SyncTodoJob($user->id, $user->events));
+                    dispatch(new SyncTodoJob($user->id, $user->events->all()));
                 }
             });
     }

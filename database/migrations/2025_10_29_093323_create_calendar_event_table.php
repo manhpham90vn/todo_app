@@ -11,22 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('calendar_events', function (Blueprint $t) {
-            $t->id();
-            $t->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $t->string('calendar_id');
-            $t->string('google_event_id')->index();
-            $t->string('status')->nullable();
-            $t->string('summary')->nullable();
-            $t->text('description')->nullable();
-            $t->string('location')->nullable();
-            $t->timestamp('start_at')->nullable();
-            $t->timestamp('end_at')->nullable();
-            $t->json('attendees')->nullable();
-            $t->json('raw')->nullable();
-            $t->timestamps();
+        Schema::create('calendar_events', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('calendar_id');
+            $table->string('google_event_id')->index();
+            $table->string('status')->nullable();
+            $table->string('summary')->nullable();
+            $table->text('description')->nullable();
+            $table->string('location')->nullable();
+            $table->timestamp('start_at')->nullable();
+            $table->timestamp('end_at')->nullable();
+            $table->json('attendees')->nullable();
+            $table->json('raw')->nullable();
+            $table->timestamps();
 
-            $t->unique(['calendar_id', 'google_event_id']);
+            $table->unique(['user_id', 'calendar_id', 'google_event_id']);
         });
     }
 

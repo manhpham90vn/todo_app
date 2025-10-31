@@ -13,6 +13,10 @@ class SyncController extends Controller
         $user = Auth::user();
         $token = $user->googleTokens()->latest('created_at')->first();
 
+        if (! $token) {
+            return back()->with('error', 'No Google tokens found. Please connect your Google account.');
+        }
+
         dispatch(new SyncGoogleCalendarJob($user->id, $token));
 
         return back()->with('success', 'Google Calendar sync successful.');
