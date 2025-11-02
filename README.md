@@ -13,6 +13,7 @@ docker
 ```shell
 composer install
 npm ci
+cp .env.example .env
 ./vendor/bin/sail down -v
 ./vendor/bin/sail up
 ```
