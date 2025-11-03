@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class SendWebPush implements ShouldQueue
+class SendWebPush2 implements ShouldQueue
 {
     use Queueable;
 
@@ -26,23 +26,21 @@ class SendWebPush implements ShouldQueue
     public function handle(): void
     {
         $now = now();
-        $toHour = $now->copy()->addMinutes(15);
-
         $nowInUTC = now()->utc();
-        $toHourInUTC = $nowInUTC->copy()->addMinutes(10);
 
-        $upcomingTodos = Todo::query()
+        $ongoingTodos = Todo::query()
             ->whereNull('deleted_at')
             ->whereHas('user', fn ($q) => $q->whereHas('pushSubscriptions'))
-            ->whereBetween('start_at', [$nowInUTC, $toHourInUTC])
+            ->where('start_at', '<=', $nowInUTC)
+            ->where('end_at', '>=', $nowInUTC)
             ->with('user')
             ->get();
 
-        Log::info("Upcoming scan: {$upcomingTodos->count()} todos starting between {$now->toDateTimeString()} and ".$toHour->toDateTimeString().'.');
+        Log::info("Ongoing scan: {$ongoingTodos->count()} todos ongoing at {$now->toDateTimeString()}.");
 
-        foreach ($upcomingTodos as $todo) {
+        foreach ($ongoingTodos as $todo) {
             $todo->user->notify(new BrowserPush($todo));
-            Log::info("Sent UPCOMING push for Todo ID {$todo->id} to User ID {$todo->user->id}.");
+            Log::info("Sent ONGOING push for Todo ID {$todo->id} to User ID {$todo->user->id}.");
         }
     }
 }

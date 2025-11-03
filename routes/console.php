@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\SendWebPush;
+use App\Jobs\SendWebPush2;
 use App\Jobs\UpdateTodoStatus;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -34,5 +35,10 @@ Schedule::job(UpdateTodoStatus::class)
 
 Schedule::job(SendWebPush::class)
     ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::job(SendWebPush2::class)
+    ->everyThirtyMinutes()
     ->withoutOverlapping()
     ->onOneServer();

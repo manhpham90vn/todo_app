@@ -77,7 +77,7 @@
                                 {{ $todo->title }}
                             </a>
                             @if($todo->description)
-                                <div class="text-muted small text-break">{{ $todo->description }}</div>
+                                <div class="text-muted small text-break">{!! Purifier::clean($todo->description) !!}</div>
                             @endif
                         </td>
                         <td class="text-center">

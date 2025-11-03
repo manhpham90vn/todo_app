@@ -13,9 +13,12 @@
         "google/apiclient": "^2.18",
         "laravel-notification-channels/webpush": "^10.2",
         "laravel/framework": "^12.0",
+        "laravel/horizon": "^5.38",
         "laravel/sanctum": "^4.0",
+        "laravel/telescope": "^5.15",
         "laravel/tinker": "^2.10.1",
-        "laravel/ui": "^4.6"
+        "laravel/ui": "^4.6",
+        "mews/purifier": "^3.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
