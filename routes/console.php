@@ -29,7 +29,7 @@ Schedule::command('app:todo-sync-command')
     ->runInBackground();
 
 Schedule::job(UpdateTodoStatus::class)
-    ->everyFiveMinutes()
+    ->everyMinute()
     ->withoutOverlapping()
     ->onOneServer();
 

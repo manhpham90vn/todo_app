@@ -3,8 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,10 +26,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Log all database queries with their execution time
         DB::listen(function ($query) {
             logger()->info('Query Time: '.$query->time.'ms ['.$query->sql.']');
         });
 
+        // Listen to specific authentication events and log them
         $watchedEvents = [
             \Illuminate\Auth\Events\Registered::class,
             \Illuminate\Auth\Events\PasswordReset::class,
@@ -51,6 +57,19 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         }
+
+        // Log Job processing events
+        Event::listen(JobProcessing::class, function ($event) {
+            Log::info('Job processing: '.$event->job->resolveName());
+        });
+
+        Event::listen(JobProcessed::class, function ($event) {
+            Log::info('Job done: '.$event->job->resolveName());
+        });
+
+        Event::listen(JobFailed::class, function ($event) {
+            Log::error('Job failed: '.$event->job->resolveName());
+        });
 
         Paginator::useBootstrap();
     }
